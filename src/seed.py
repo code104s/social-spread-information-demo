@@ -1,6 +1,7 @@
 import numpy as np
 import heapq
 
+
 def shortest_path(graph, start):
     distances = {node: float('infinity') for node in graph}
     distances[start] = 0
@@ -20,6 +21,7 @@ def shortest_path(graph, start):
                 heapq.heappush(queue, (distance, neighbor))
 
     return distances
+
 
 def mia(nodes, edges, n):
     ''' select seeds by mia policy
@@ -58,13 +60,14 @@ def mia(nodes, edges, n):
 def mia_centrality(node, out_connection, in_connection):
     ''' select seeds by mia centrality policy
     '''
-    theta = 0.5 # ngưỡng ảnh hưởng
+    theta = 0.5  # ngưỡng ảnh hưởng
     c_score = 0
-    q = 1 # tỷ lệ ảnh hưởng
+    q = 1  # tỷ lệ ảnh hưởng
     visited = set()
     path_prob = 1
     c_score = dfs(visited, out_connection, path_prob, in_connection, node, theta, q)
     return c_score
+
 
 def dfs(visited, out_connection, path_prob, in_connection, node, theta, q):
     if node not in visited:
@@ -101,6 +104,7 @@ def greedy(edges, n):
         seeds.append(seed)
         out_degree[seed] = -1
     return seeds
+
 
 def degree(edges, n):
     ''' Select seeds by degree policy

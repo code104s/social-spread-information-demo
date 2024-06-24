@@ -1,10 +1,13 @@
 import tkinter as tk
+
+import self
+
 import src.seed as seed
 from src.data import data_load
 from src.influence import influence_count, coverage, precision
-import networkx as nx
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import random
+from src.graph import GraphWindow, GraphWindow2
+
 
 class Application(tk.Frame):
     def __init__(self, master=None):
@@ -28,6 +31,16 @@ class Application(tk.Frame):
         self.calculate_button["text"] = "Calculate"
         self.calculate_button["command"] = self.calculate_and_display_results
         self.calculate_button.pack()
+
+        self.num_nodes_label = tk.Label(self, text="Number of Nodes:")
+        self.num_nodes_label.pack()
+        self.num_nodes_entry = tk.Entry(self)
+        self.num_nodes_entry.pack()
+
+        self.calculate_with_data_button = tk.Button(self)
+        self.calculate_with_data_button["text"] = "Calculate with Data"
+        self.calculate_with_data_button["command"] = self.calculate_with_data
+        self.calculate_with_data_button.pack()
 
         self.result_text = tk.Text(self)
         self.result_text.pack()
@@ -63,38 +76,60 @@ class Application(tk.Frame):
         # Display results
         result = f"Final Influence Number: {influence_number}\n" \
                  f"Coverage: {coverage_result}\n" \
-                 f"Precision: {precision_result}"
+                 f"Precision: {precision_result}" \
+                 f"\n\nSelected seeds: {seeds}"
         self.result_text.delete(1.0, tk.END)
         self.result_text.insert(tk.END, result)
 
         # Draw graph
-        self.draw_graph(nodes, edges, seeds)
+        GraphWindow(self.master, nodes, edges, seeds)
 
-    def draw_graph(self, nodes, edges, seeds):
-        G = nx.Graph()
+    def calculate_with_data(self):
+        num_nodes = int(self.num_nodes_entry.get())
+        # Generate nodes and edges based on num_nodes
+        nodes = list(range(1, num_nodes + 1))
+        edges = []
+        for _ in range(num_nodes * 2):  # Generate 2 * num_nodes edges
+            node1, node2 = random.sample(nodes, 2)
+            edges.append((node1, node2))
 
-        # Add nodes
-        for node in nodes:
-            if node in seeds:
-                G.add_node(node, color='red')  # color seeds in red
-            else:
-                G.add_node(node, color='blue')  # color other nodes in blue
+        init_rate = float(self.init_rate_entry.get())
+        threshold = float(self.threshold_entry.get())
 
-        # Add edges
-        for edge in edges:
-            G.add_edge(*edge)
+        # Parameters
+        policy = 'mia'  # Seed selection policy
 
-        colors = [node[1]['color'] for node in G.nodes(data=True)]
+        # Seed selection
+        seeds_number = int(len(nodes) * init_rate)
 
-        # Create figure and draw the graph
-        fig = plt.Figure(figsize=(5, 5))
-        ax = fig.add_subplot(111)
-        nx.draw(G, with_labels=True, node_color=colors, ax=ax)
+        if policy == 'mia':
+            seeds = seed.mia(nodes, edges, seeds_number)
+        else:
+            raise NameError("Unknown policy")
 
-        # Create a tkinter Canvas to display the figure
-        canvas = FigureCanvasTkAgg(fig, master=self)
-        canvas.draw()
-        canvas.get_tk_widget().pack()
+        # Calculate final influence number
+        influence_number = influence_count(nodes, edges, seeds, threshold)
+
+        # Calculate coverage
+        coverage_result = coverage(nodes, influence_number)
+
+        # Calculate precision
+        predicted_positives = len(seeds)
+        true_positives = influence_number
+        precision_result = precision(true_positives, predicted_positives)
+
+        # Display results
+        result = f"Final Influence Number: {influence_number}\n" \
+                 f"Coverage: {coverage_result}\n" \
+                 f"Precision: {precision_result}" \
+                 f"\n\nSelected seeds: {seeds}"
+        self.result_text.delete(1.0, tk.END)
+        self.result_text.insert(tk.END, result)
+
+        # Draw graph with all nodes
+        nodes_to_draw = nodes
+        GraphWindow2(self.master, nodes, edges, seeds)
+
 
 root = tk.Tk()
 app = Application(master=root)

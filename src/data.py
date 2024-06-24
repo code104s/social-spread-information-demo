@@ -5,12 +5,14 @@ def data_load(path):
     '''
     nodes = []
     edges = []
-    file = open(path)
-    for line in file:
-        source, target = line.split('\t')
-        nodes.append(int(source))
-        nodes.append(int(target))
-        edges.append((int(source), int(target)))
+    with open(path) as file:
+        for line in file:
+            parts = line.split('\t')
+            if len(parts) == 2:
+                source, target = parts
+                nodes.append(int(source))
+                nodes.append(int(target))
+                edges.append((int(source), int(target)))
     nodes = list(set(nodes))
     num_nodes = len(nodes)
     num_edges = len(edges)
