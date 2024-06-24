@@ -66,9 +66,8 @@ class Application(tk.Frame):
         influence_number = influence_count(nodes, edges, seeds, threshold)
 
         # Calculate coverage
-        coverage_result = coverage(nodes, influence_number)
 
-        # Calculate precision
+        coverage_result = coverage(nodes, len(influence_number))  #Calculate precision
         predicted_positives = len(seeds)
         true_positives = influence_number
         precision_result = precision(true_positives, predicted_positives)
@@ -120,9 +119,9 @@ class Application(tk.Frame):
 
         # Display results
         result = f"Final Influence Number: {len(final_actived_node)}\n" \
-                f"Coverage: {coverage_result}\n" \
-                f"Precision: {precision_result}" \
-                f"\n\nSelected seeds: {seeds}"
+                 f"Coverage: {coverage_result}\n" \
+                 f"Precision: {precision_result}" \
+                 f"\n\nSelected seeds: {seeds}"
         self.result_text.delete(1.0, tk.END)
         self.result_text.insert(tk.END, result)
 
