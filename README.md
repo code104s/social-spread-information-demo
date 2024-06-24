@@ -1,4 +1,4 @@
------------------The project I developed further, owner of https://github.com/cbhua/independent-cascade-----------------
+The project I developed further, owner of https://github.com/cbhua/independent-cascade
 
 📡 Independent Cascade Model
 This is the Python implement of Independent cascade model.
