@@ -4,6 +4,7 @@ import networkx as nx
 from matplotlib.backends.backend_tkagg import (
     FigureCanvasTkAgg, NavigationToolbar2Tk)
 from matplotlib.figure import Figure
+import matplotlib.patches as matches
 import matplotlib.pyplot as plt
 import random
 
@@ -79,13 +80,13 @@ class GraphWindow(tk.Toplevel):
 
 
 class GraphWindow2(tk.Toplevel):
-    def __init__(self, master=None, nodes=None, edges=None, seeds=None):
+    def __init__(self, master=None, nodes=None, edges=None, seeds=None, activated_nodes=None):
         super().__init__(master)
         self.title("Graph Window")
-        self.create_graph(nodes, edges, seeds)
+        self.create_graph(nodes, edges, seeds, activated_nodes)
         self.mainloop()  # Start the event loop
 
-    def create_graph(self, nodes, edges, seeds):
+    def create_graph(self, nodes, edges, seeds, activated_nodes):
         G = nx.DiGraph()
 
         # Add all nodes and edges to the graph
@@ -101,15 +102,28 @@ class GraphWindow2(tk.Toplevel):
         non_seed_nodes = [node for node in G.nodes() if node not in seeds]
         seed_nodes = [node for node in G.nodes() if node in seeds]
 
+        if activated_nodes is None:
+            activated_nodes = []
+        activated_nodes = [node for node in G.nodes() if node in activated_nodes]
+
         nx.draw_networkx_edges(G, pos, ax=ax, arrows=True)
 
         for node in non_seed_nodes:
             nx.draw_networkx_nodes(G, pos, nodelist=[node], node_color='blue', ax=ax)
 
+        for node in activated_nodes:
+            nx.draw_networkx_nodes(G, pos, nodelist=[node], node_color='green', ax=ax)
+
         for node in seed_nodes:
             nx.draw_networkx_nodes(G, pos, nodelist=[node], node_color='red', ax=ax)
 
         nx.draw_networkx_labels(G, pos, ax=ax)
+
+        # Create legend
+        red_patch = matches.Patch(color='red', label='Seed Nodes')
+        green_patch = matches.Patch(color='green', label='Activated Nodes')
+        blue_patch = matches.Patch(color='blue', label='Other Nodes')
+        plt.legend(handles=[red_patch, green_patch, blue_patch])
 
         canvas = FigureCanvasTkAgg(fig, master=self)
         canvas.draw()

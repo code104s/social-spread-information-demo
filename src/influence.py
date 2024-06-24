@@ -53,10 +53,7 @@ def influence_count(nodes, edges, seeds, threshold):
             nodes_status[node] = 1
         active_nodes = new_actived_nodes
 
-    final_actived_node = 0
-    for node in nodes:
-        if nodes_status[node] == 2:
-            final_actived_node += 1
+    final_actived_node = [node for node in nodes if nodes_status[node] == 2]
     return final_actived_node
 
 # Tính độ phủ

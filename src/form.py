@@ -108,27 +108,27 @@ class Application(tk.Frame):
             raise NameError("Unknown policy")
 
         # Calculate final influence number
-        influence_number = influence_count(nodes, edges, seeds, threshold)
+        final_actived_node = influence_count(nodes, edges, seeds, threshold)
 
         # Calculate coverage
-        coverage_result = coverage(nodes, influence_number)
+        coverage_result = coverage(nodes, len(final_actived_node))
 
         # Calculate precision
         predicted_positives = len(seeds)
-        true_positives = influence_number
+        true_positives = len(final_actived_node)
         precision_result = precision(true_positives, predicted_positives)
 
         # Display results
-        result = f"Final Influence Number: {influence_number}\n" \
-                 f"Coverage: {coverage_result}\n" \
-                 f"Precision: {precision_result}" \
-                 f"\n\nSelected seeds: {seeds}"
+        result = f"Final Influence Number: {len(final_actived_node)}\n" \
+                f"Coverage: {coverage_result}\n" \
+                f"Precision: {precision_result}" \
+                f"\n\nSelected seeds: {seeds}"
         self.result_text.delete(1.0, tk.END)
         self.result_text.insert(tk.END, result)
 
         # Draw graph with all nodes
         nodes_to_draw = nodes
-        GraphWindow2(self.master, nodes, edges, seeds)
+        GraphWindow2(self.master, nodes, edges, seeds, final_actived_node)
 
 
 root = tk.Tk()
