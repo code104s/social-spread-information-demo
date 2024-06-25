@@ -1,5 +1,9 @@
 The project I developed further, owner of https://github.com/cbhua/independent-cascade
 
+Modify some things and add interface and graphs
+
+![image](https://github.com/code104s/social-spread-information-demo/assets/101914717/847328d7-a843-4d9a-b51c-5e55d5d31a6a)
+
 📡 Independent Cascade Model
 This is the Python implement of Independent cascade model.
 
