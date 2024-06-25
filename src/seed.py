@@ -32,8 +32,8 @@ def mia(nodes, edges, n):
     returns:
         seeds: (list) [#seed]: selected seed nodes index;
     '''
-    out_connection = {}
-    in_connection = {}
+    out_connection = {} # số lượng cạnh ra của mỗi node
+    in_connection = {} # số lượng cạnh vào của mỗi node
     centrality_score = {}
     seeds = []
     for edge in edges:
@@ -64,19 +64,21 @@ def mia_centrality(node, out_connection, in_connection):
     c_score = 0
     q = 1  # tỷ lệ ảnh hưởng
     visited = set()
-    path_prob = 1
-    c_score = dfs(visited, out_connection, path_prob, in_connection, node, theta, q)
+    path_prob = 1 # xác suất lan truyền
+    edge_prob = {} # xác suất lan truyền qua cạnh
+    c_score = dfs(visited, out_connection, path_prob, in_connection, node, theta, q, edge_prob)
     return c_score
 
 
-def dfs(visited, out_connection, path_prob, in_connection, node, theta, q):
+def dfs(visited, out_connection, path_prob, in_connection, node, theta, q, edge_probs):
     if node not in visited:
         visited.add(node)
         if node in out_connection:
             for neighbour in out_connection[node]:
                 path_prob *= q / in_connection[neighbour]
+                edge_probs[(node, neighbour)] = path_prob  # Lưu xác suất lan truyền qua cạnh
                 if path_prob >= theta:
-                    dfs(visited, out_connection, path_prob, in_connection, neighbour, theta, q)
+                    dfs(visited, out_connection, path_prob, in_connection, neighbour, theta, q, edge_probs)
                     path_prob /= (q / in_connection[neighbour])
                 else:
                     path_prob /= (q / in_connection[neighbour])

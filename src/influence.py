@@ -10,11 +10,13 @@ def influence_count(nodes, edges, seeds, threshold):
         threshold (float): influent threshold, between 0 and 1;
     Return:
         final_actived_node (list): list of influent nodes;
+        edge_probs (dict): dictionary of edge probabilities;
     '''
     in_degree = {}
     inactive_nodes = []
     active_nodes = []
     nodes_status = {}
+    edge_probs = {}  # new dictionary to store edge probabilities
 
     for edge in edges:
         if edge[0] in seeds:
@@ -29,6 +31,7 @@ def influence_count(nodes, edges, seeds, threshold):
             in_degree[edge[1]] += 1
         else:
             in_degree[edge[1]] = 1
+        edge_probs[(edge[0], edge[1])] = threshold / in_degree[edge[1]]  # store the edge probability
 
     active_nodes = list(set(active_nodes))
     inactive_nodes = list(set(inactive_nodes))
@@ -38,7 +41,7 @@ def influence_count(nodes, edges, seeds, threshold):
     for node in active_nodes:
         nodes_status[node] = 1
 
-    while(active_nodes):
+    while active_nodes:
         new_actived_nodes = []
         for edge in edges:
             if nodes_status[edge[0]] == 1:
@@ -54,7 +57,8 @@ def influence_count(nodes, edges, seeds, threshold):
         active_nodes = new_actived_nodes
 
     final_actived_node = [node for node in nodes if nodes_status[node] == 2]
-    return final_actived_node
+    return final_actived_node, edge_probs
+
 
 # Tính độ phủ
 def coverage(nodes, final_actived_node):
@@ -67,6 +71,7 @@ def coverage(nodes, final_actived_node):
     '''
     coverage = final_actived_node / len(nodes)
     return coverage
+
 
 def precision(true_positives, predicted_positives):
     ''' Calculate precision

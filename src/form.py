@@ -1,8 +1,11 @@
 import tkinter as tk
 
+import networkx as nx
+import seed
 import self
 
 import src.seed as seed
+from src import graph
 from src.data import data_load
 from src.influence import influence_count, coverage, precision
 import random
@@ -107,7 +110,7 @@ class Application(tk.Frame):
             raise NameError("Unknown policy")
 
         # Calculate final influence number
-        final_actived_node = influence_count(nodes, edges, seeds, threshold)
+        final_actived_node, edge_probs = influence_count(nodes, edges, seeds, threshold)
 
         # Calculate coverage
         coverage_result = coverage(nodes, len(final_actived_node))
@@ -117,17 +120,21 @@ class Application(tk.Frame):
         true_positives = len(final_actived_node)
         precision_result = precision(true_positives, predicted_positives)
 
+        paths = []
+        paths_text = "\n".join(" -> ".join(str(node) for node in path) for path in paths)
+
         # Display results
         result = f"Final Influence Number: {len(final_actived_node)}\n" \
                  f"Coverage: {coverage_result}\n" \
                  f"Precision: {precision_result}" \
-                 f"\n\nSelected seeds: {seeds}"
+                 f"\n\nSelected seeds: {seeds}" \
+                 f"\n\nPaths:\n{paths_text}"
         self.result_text.delete(1.0, tk.END)
         self.result_text.insert(tk.END, result)
 
         # Draw graph with all nodes
         nodes_to_draw = nodes
-        GraphWindow2(self.master, nodes, edges, seeds, final_actived_node)
+        GraphWindow2(self.master, nodes, edges, seeds, final_actived_node, edge_probs=edge_probs)
 
 
 root = tk.Tk()

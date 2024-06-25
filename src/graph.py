@@ -1,10 +1,11 @@
 import tkinter as tk
+from collections import defaultdict
 
 import networkx as nx
 from matplotlib.backends.backend_tkagg import (
     FigureCanvasTkAgg, NavigationToolbar2Tk)
 from matplotlib.figure import Figure
-import matplotlib.patches as matches
+import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import random
 
@@ -80,13 +81,13 @@ class GraphWindow(tk.Toplevel):
 
 
 class GraphWindow2(tk.Toplevel):
-    def __init__(self, master=None, nodes=None, edges=None, seeds=None, activated_nodes=None):
+    def __init__(self, master=None, nodes=None, edges=None, seeds=None, activated_nodes=None, paths=None, edge_probs=None):
         super().__init__(master)
         self.title("Graph Window")
-        self.create_graph(nodes, edges, seeds, activated_nodes)
+        self.create_graph(nodes, edges, seeds, activated_nodes, paths, edge_probs)
         self.mainloop()  # Start the event loop
 
-    def create_graph(self, nodes, edges, seeds, activated_nodes):
+    def create_graph(self, nodes, edges, seeds, activated_nodes, paths, edge_probs):
         G = nx.DiGraph()
 
         # Add all nodes and edges to the graph
@@ -102,11 +103,13 @@ class GraphWindow2(tk.Toplevel):
         non_seed_nodes = [node for node in G.nodes() if node not in seeds]
         seed_nodes = [node for node in G.nodes() if node in seeds]
 
+        # Nếu không có activated_nodes, thì gán activated_nodes = []
         if activated_nodes is None:
             activated_nodes = []
-        activated_nodes = [node for node in G.nodes() if node in activated_nodes]
+        activated_nodes = [node for node in G.nodes() if node in activated_nodes] # Lấy các nút đã kích hoạt bằng cách so sánh với activated_nodes
 
         nx.draw_networkx_edges(G, pos, ax=ax, arrows=True)
+
 
         for node in non_seed_nodes:
             nx.draw_networkx_nodes(G, pos, nodelist=[node], node_color='blue', ax=ax)
@@ -117,13 +120,23 @@ class GraphWindow2(tk.Toplevel):
         for node in seed_nodes:
             nx.draw_networkx_nodes(G, pos, nodelist=[node], node_color='red', ax=ax)
 
+        # Draw the edge probabilities
+        for edge, prob in edge_probs.items():
+            nx.draw_networkx_edge_labels(G, pos, edge_labels={(edge[0], edge[1]): f'{prob:.2f}'}, ax=ax)
+
+        # Draw the paths
+        if paths is not None:
+            for path in paths:
+                nx.draw_networkx_edges(G, pos, edgelist=path, edge_color='purple', width=2, ax=ax)
+
         nx.draw_networkx_labels(G, pos, ax=ax)
 
         # Create legend
-        red_patch = matches.Patch(color='red', label='Seed Nodes')
-        green_patch = matches.Patch(color='green', label='Activated Nodes')
-        blue_patch = matches.Patch(color='blue', label='Other Nodes')
-        plt.legend(handles=[red_patch, green_patch, blue_patch])
+        red_patch = patches.Patch(color='red', label='Seed Nodes')
+        green_patch = patches.Patch(color='green', label='Activated Nodes')
+        blue_patch = patches.Patch(color='blue', label='Other Nodes')
+        purple_patch = patches.Patch(color='purple', label='Paths')
+        plt.legend(handles=[red_patch, green_patch, blue_patch, purple_patch])
 
         canvas = FigureCanvasTkAgg(fig, master=self)
         canvas.draw()
