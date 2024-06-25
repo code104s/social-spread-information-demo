@@ -2,11 +2,11 @@ import tkinter as tk
 from collections import defaultdict
 
 import networkx as nx
+from matplotlib import pyplot as plt
 from matplotlib.backends.backend_tkagg import (
     FigureCanvasTkAgg, NavigationToolbar2Tk)
 from matplotlib.figure import Figure
 import matplotlib.patches as patches
-import matplotlib.pyplot as plt
 import random
 
 
@@ -81,13 +81,14 @@ class GraphWindow(tk.Toplevel):
 
 
 class GraphWindow2(tk.Toplevel):
-    def __init__(self, master=None, nodes=None, edges=None, seeds=None, activated_nodes=None, paths=None, edge_probs=None):
+    def __init__(self, master=None, nodes=None, edges=None, seeds=None, activated_nodes=None, paths=None, edge_probs=None,
+                 draw_edge_labels=None):
         super().__init__(master)
         self.title("Graph Window")
-        self.create_graph(nodes, edges, seeds, activated_nodes, paths, edge_probs)
+        self.create_graph(nodes, edges, seeds, activated_nodes, paths, edge_probs, draw_edge_labels)
         self.mainloop()  # Start the event loop
 
-    def create_graph(self, nodes, edges, seeds, activated_nodes, paths, edge_probs):
+    def create_graph(self, nodes, edges, seeds, activated_nodes, paths, edge_probs, draw_edge_labels):
         G = nx.DiGraph()
 
         # Add all nodes and edges to the graph
@@ -123,14 +124,7 @@ class GraphWindow2(tk.Toplevel):
             for path in paths:
                 nx.draw_networkx_edges(G, pos, edgelist=path, edge_color='purple', width=2, ax=ax)
 
-        nx.draw_networkx_labels(G, pos, ax=ax)
-
-        # Create legend
-        red_patch = patches.Patch(color='red', label='Seed Nodes')
-        green_patch = patches.Patch(color='green', label='Activated Nodes')
-        blue_patch = patches.Patch(color='blue', label='Other Nodes')
-        purple_patch = patches.Patch(color='purple', label='Paths')
-        plt.legend(handles=[red_patch, green_patch, blue_patch, purple_patch])
+        nx.draw_networkx_labels(G, pos, ax=ax, font_color='white')
 
         canvas = FigureCanvasTkAgg(fig, master=self)
         canvas.draw()
@@ -140,6 +134,7 @@ class GraphWindow2(tk.Toplevel):
         toolbar.update()
         canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
-        # Vẽ nhãn trên các cạnh
-        for edge, prob in edge_probs.items():
-            nx.draw_networkx_edge_labels(G, pos, edge_labels={(edge[0], edge[1]): f'{prob:.2f}'}, ax=ax)
+        # Draw edge labels if draw_edge_labels is True
+        if draw_edge_labels:
+            for edge, prob in edge_probs.items():
+                nx.draw_networkx_edge_labels(G, pos, edge_labels={(edge[0], edge[1]): f'{prob:.2f}'}, ax=ax)

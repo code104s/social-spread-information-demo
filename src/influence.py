@@ -1,6 +1,7 @@
 import numpy as np
 
 
+# Tinh danh sach cac
 def influence_count(nodes, edges, seeds, threshold):
     ''' Calculate influent result
     Args:
@@ -47,7 +48,7 @@ def influence_count(nodes, edges, seeds, threshold):
             if nodes_status[edge[0]] == 1:
                 if nodes_status[edge[1]] == 0:
                     p = np.array([1 - threshold / in_degree[edge[1]], threshold / in_degree[edge[1]]])
-                    flag = np.random.choice([0, 1], p=p.ravel())
+                    flag = np.random.choice([0, 1], p=p.ravel()) # trả về 0 (không thành công) hoặc 1 (thành công)
                     if flag:
                         new_actived_nodes.append(edge[1])
         for node in active_nodes:
