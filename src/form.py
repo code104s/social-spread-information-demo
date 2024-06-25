@@ -30,10 +30,10 @@ class Application(tk.Frame):
         self.threshold_entry = tk.Entry(self)
         self.threshold_entry.pack()
 
-        self.calculate_button = tk.Button(self)
-        self.calculate_button["text"] = "Calculate"
-        self.calculate_button["command"] = self.calculate_and_display_results
-        self.calculate_button.pack()
+        # self.calculate_button = tk.Button(self)
+        # self.calculate_button["text"] = "Calculate"
+        # self.calculate_button["command"] = self.calculate_and_display_results
+        # self.calculate_button.pack()
 
         self.num_nodes_label = tk.Label(self, text="Number of Nodes:")
         self.num_nodes_label.pack()
@@ -48,43 +48,43 @@ class Application(tk.Frame):
         self.result_text = tk.Text(self)
         self.result_text.pack()
 
-    def calculate_and_display_results(self):
-        init_rate = float(self.init_rate_entry.get())
-        threshold = float(self.threshold_entry.get())
-
-        # Parameters
-        path = '../data/example.txt'  # dataset file path
-        policy = 'mia'  # Seed selection policy
-
-        # Seed selection
-        nodes, edges = data_load(path)
-        seeds_number = int(len(nodes) * init_rate)
-
-        if policy == 'mia':
-            seeds = seed.mia(nodes, edges, seeds_number)
-        else:
-            raise NameError("Unknown policy")
-
-        # Calculate final influence number
-        influence_number = influence_count(nodes, edges, seeds, threshold)
-
-        # Calculate coverage
-
-        coverage_result = coverage(nodes, len(influence_number))  #Calculate precision
-        predicted_positives = len(seeds)
-        true_positives = influence_number
-        precision_result = precision(true_positives, predicted_positives)
-
-        # Display results
-        result = f"Final Influence Number: {influence_number}\n" \
-                 f"Coverage: {coverage_result}\n" \
-                 f"Precision: {precision_result}" \
-                 f"\n\nSelected seeds: {seeds}"
-        self.result_text.delete(1.0, tk.END)
-        self.result_text.insert(tk.END, result)
-
-        # Draw graph
-        GraphWindow(self.master, nodes, edges, seeds)
+    # def calculate_and_display_results(self):
+    #     init_rate = float(self.init_rate_entry.get())
+    #     threshold = float(self.threshold_entry.get())
+    #
+    #     # Parameters
+    #     path = '../data/example.txt'  # dataset file path
+    #     policy = 'mia'  # Seed selection policy
+    #
+    #     # Seed selection
+    #     nodes, edges = data_load(path)
+    #     seeds_number = int(len(nodes) * init_rate)
+    #
+    #     if policy == 'mia':
+    #         seeds = seed.mia(nodes, edges, seeds_number)
+    #     else:
+    #         raise NameError("Unknown policy")
+    #
+    #     # Calculate final influence number
+    #     influence_number = influence_count(nodes, edges, seeds, threshold)
+    #
+    #     # Calculate coverage
+    #
+    #     coverage_result = coverage(nodes, len(influence_number))  #Calculate precision
+    #     predicted_positives = len(seeds)
+    #     true_positives = influence_number
+    #     precision_result = precision(true_positives, predicted_positives)
+    #
+    #     # Display results
+    #     result = f"Final Influence Number: {influence_number}\n" \
+    #              f"Coverage: {coverage_result}\n" \
+    #              f"Precision: {precision_result}" \
+    #              f"\n\nSelected seeds: {seeds}"
+    #     self.result_text.delete(1.0, tk.END)
+    #     self.result_text.insert(tk.END, result)
+    #
+    #     # Draw graph
+    #     GraphWindow(self.master, nodes, edges, seeds)
 
     def calculate_with_data(self):
         num_nodes = int(self.num_nodes_entry.get())
@@ -105,7 +105,7 @@ class Application(tk.Frame):
         seeds_number = int(len(nodes) * init_rate)
 
         if policy == 'mia':
-            seeds = seed.mia(nodes, edges, seeds_number)
+            seeds = seed.mia(nodes, edges, seeds_number, threshold)
         else:
             raise NameError("Unknown policy")
 

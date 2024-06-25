@@ -104,8 +104,6 @@ class GraphWindow2(tk.Toplevel):
         seed_nodes = [node for node in G.nodes() if node in seeds]
 
         # Nếu không có activated_nodes, thì gán activated_nodes = []
-        if activated_nodes is None:
-            activated_nodes = []
         activated_nodes = [node for node in G.nodes() if node in activated_nodes] # Lấy các nút đã kích hoạt bằng cách so sánh với activated_nodes
 
         nx.draw_networkx_edges(G, pos, ax=ax, arrows=True)
@@ -119,10 +117,6 @@ class GraphWindow2(tk.Toplevel):
 
         for node in seed_nodes:
             nx.draw_networkx_nodes(G, pos, nodelist=[node], node_color='red', ax=ax)
-
-        # Draw the edge probabilities
-        for edge, prob in edge_probs.items():
-            nx.draw_networkx_edge_labels(G, pos, edge_labels={(edge[0], edge[1]): f'{prob:.2f}'}, ax=ax)
 
         # Draw the paths
         if paths is not None:
@@ -145,3 +139,7 @@ class GraphWindow2(tk.Toplevel):
         toolbar = NavigationToolbar2Tk(canvas, self)
         toolbar.update()
         canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+
+        # Vẽ nhãn trên các cạnh
+        for edge, prob in edge_probs.items():
+            nx.draw_networkx_edge_labels(G, pos, edge_labels={(edge[0], edge[1]): f'{prob:.2f}'}, ax=ax)

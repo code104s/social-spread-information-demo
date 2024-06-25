@@ -23,17 +23,18 @@ def shortest_path(graph, start):
     return distances
 
 
-def mia(nodes, edges, n):
+def mia(nodes, edges, n, threshold):
     ''' select seeds by mia policy
     args:
         nodes (list) [#node]: node list of the graph;
         edges (list of list) [#edge, 2]: edge list of the graph;
         n (int): number of seeds;
+        threshold (float): influence threshold;
     returns:
         seeds: (list) [#seed]: selected seed nodes index;
     '''
-    out_connection = {} # số lượng cạnh ra của mỗi node
-    in_connection = {} # số lượng cạnh vào của mỗi node
+    out_connection = {}  # số lượng cạnh ra của mỗi node
+    in_connection = {}  # số lượng cạnh vào của mỗi node
     centrality_score = {}
     seeds = []
     for edge in edges:
@@ -46,42 +47,41 @@ def mia(nodes, edges, n):
         else:
             in_connection[edge[1]] = 1
     for node in nodes:
-        centrality_score[node] = mia_centrality(node, out_connection, in_connection)
-    i = 0
-    for node, _ in sorted(centrality_score.items(), key=lambda item: item[1], reverse=True):
-        if i >= n:
-            break
-        else:
-            i += 1
-        seeds.append(node)
+        centrality_score[node] = mia_centrality(node, out_connection, in_connection, threshold)
+
+    # Lọc ra n node có giá trị centrality lớn nhất
+    sorted_nodes = sorted(centrality_score, key=centrality_score.get, reverse=True)
+    seeds = sorted_nodes[:n]
+
     return seeds
 
-
-def mia_centrality(node, out_connection, in_connection):
+# mia_centrality để tính toán số lượng node mà node có thể lan truyền đến
+def mia_centrality(node, out_connection, in_connection, threshold):
     ''' select seeds by mia centrality policy
     '''
-    theta = 0.5  # ngưỡng ảnh hưởng
-    c_score = 0
-    q = 1  # tỷ lệ ảnh hưởng
+    c_score = 0 # số lượng node mà node có thể lan truyền đến
     visited = set()
-    path_prob = 1 # xác suất lan truyền
-    edge_prob = {} # xác suất lan truyền qua cạnh
-    c_score = dfs(visited, out_connection, path_prob, in_connection, node, theta, q, edge_prob)
+    path_prob = 1  # xác suất lan truyền
+    edge_probs = {}  # xác suất lan truyền qua cạnh
+    c_score = dfs(visited, out_connection, path_prob, in_connection, node, threshold, edge_probs)
     return c_score
 
 
-def dfs(visited, out_connection, path_prob, in_connection, node, theta, q, edge_probs):
-    if node not in visited:
-        visited.add(node)
-        if node in out_connection:
-            for neighbour in out_connection[node]:
-                path_prob *= q / in_connection[neighbour]
-                edge_probs[(node, neighbour)] = path_prob  # Lưu xác suất lan truyền qua cạnh
-                if path_prob >= theta:
-                    dfs(visited, out_connection, path_prob, in_connection, neighbour, theta, q, edge_probs)
-                    path_prob /= (q / in_connection[neighbour])
-                else:
-                    path_prob /= (q / in_connection[neighbour])
+# dfs để tính toán số lượng node mà node có thể lan truyền đến
+def dfs(visited, out_connection, path_prob, in_connection, node, threshold, edge_probs):
+    nodes_to_visit = [node]
+    while nodes_to_visit:
+        current_node = nodes_to_visit.pop()
+        if current_node not in visited:
+            visited.add(current_node)
+            if current_node in out_connection:
+                for neighbour in out_connection[current_node]:
+                    old_path_prob = path_prob
+                    path_prob *= threshold / in_connection[neighbour]
+                    if path_prob >= threshold:
+                        nodes_to_visit.append(neighbour)
+                    path_prob = old_path_prob  # restore the old path_prob after dfs returns
+                    edge_probs[(current_node, neighbour)] = path_prob  # save the path_prob after dfs returns
     N_of_nodes = len(visited)
     return N_of_nodes
 
