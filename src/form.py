@@ -200,7 +200,10 @@ class Application(tk.Frame):
         precision_result = precision(true_positives, predicted_positives)
 
         paths = []
-        paths_text = "\n".join(" -> ".join(str(node) for node in path) for path in paths)
+        if paths and len(paths) > 0:
+            paths_text = "\n".join(" -> ".join(str(node) for node in path) for path in paths)
+        else:
+            paths_text = "No paths available"
 
         # Display results
         result = f"Final Influence Number: {len(final_actived_node)}\n" \
